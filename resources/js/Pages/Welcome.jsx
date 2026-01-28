@@ -3,30 +3,24 @@ import { useEffect, useMemo, useState } from 'react';
 
 const formatDate = (date) => date.toISOString().slice(0, 10);
 
-const buildDefaultRange = () => {
-    const end = new Date();
-    const start = new Date();
-    start.setDate(end.getDate() - 13);
-
-    return {
-        startDate: formatDate(start),
-        endDate: formatDate(end),
-    };
-};
+const buildDefaultRange = () => ({
+    startDate: '2013-10-01',
+    endDate: '2013-10-03',
+});
 
 const validateRange = ({ startDate, endDate }) => {
     const errors = {};
 
     if (!startDate) {
-        errors.startDate = 'يرجى تحديد تاريخ البداية.';
+        errors.startDate = 'Please select a start date.';
     }
 
     if (!endDate) {
-        errors.endDate = 'يرجى تحديد تاريخ النهاية.';
+        errors.endDate = 'Please select an end date.';
     }
 
     if (startDate && endDate && startDate > endDate) {
-        errors.endDate = 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية.';
+        errors.endDate = 'End date must be on or after the start date.';
     }
 
     return errors;
@@ -71,13 +65,13 @@ export default function Welcome({ auth }) {
             );
 
             if (!response.ok) {
-                throw new Error('تعذر تحميل البيانات.');
+                throw new Error('Unable to load data.');
             }
 
             const payload = await response.json();
             setRates(payload.data ?? []);
         } catch (error) {
-            setApiError('حدث خطأ أثناء تحميل التقرير، حاول مرة أخرى.');
+            setApiError('Unable to load the report. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -157,22 +151,22 @@ export default function Welcome({ auth }) {
                         <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">
-                                    تقارير العمليات
+                                    Operations Reports
                                 </p>
                                 <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-                                    لوحة معدل الإلغاء
+                                    Cancellation Rate Dashboard
                                 </h1>
                                 <p className="mt-3 max-w-2xl text-sm text-slate-200">
-                                    راقب أداء الرحلات يوميًا عبر تقرير احترافي مع واجهة
-                                    سريعة الاستجابة تعتمد على API /reports/cancellation-rate.
+                                    Track daily trip performance with a fast, responsive
+                                    experience powered by the /reports/cancellation-rate API.
                                 </p>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-slate-200">
                                 <span className="rounded-full bg-white/10 px-3 py-1">
-                                    تحديث سريع
+                                    Fast refresh
                                 </span>
                                 <span className="rounded-full bg-white/10 px-3 py-1">
-                                    بيانات لحظية
+                                    Real-time data
                                 </span>
                                 {auth?.user ? (
                                     <Link
@@ -186,7 +180,7 @@ export default function Welcome({ auth }) {
                                         href={route('login')}
                                         className="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/60"
                                     >
-                                        تسجيل الدخول
+                                        Log in
                                     </Link>
                                 )}
                             </div>
@@ -196,45 +190,45 @@ export default function Welcome({ auth }) {
                             <div className="space-y-6 rounded-3xl bg-white/5 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.35)] backdrop-blur">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-lg font-semibold text-white">
-                                        نظرة عامة على الفترة
+                                        Period overview
                                     </h2>
                                     <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-xs font-semibold text-cyan-100">
-                                        {summary.totalDays} يوم
+                                        {summary.totalDays} days
                                     </span>
                                 </div>
 
                                 <div className="grid gap-4 sm:grid-cols-3">
                                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                                         <p className="text-xs text-slate-300">
-                                            المتوسط اليومي
+                                            Daily average
                                         </p>
                                         <p className="mt-2 text-2xl font-semibold">
                                             {toPercentage(summary.average)}
                                         </p>
                                         <p className="mt-1 text-xs text-slate-400">
-                                            معدل الإلغاء الكلي
+                                            Overall cancellation rate
                                         </p>
                                     </div>
                                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                                         <p className="text-xs text-slate-300">
-                                            أقل معدل
+                                            Lowest rate
                                         </p>
                                         <p className="mt-2 text-2xl font-semibold text-emerald-300">
                                             {toPercentage(summary.min)}
                                         </p>
                                         <p className="mt-1 text-xs text-slate-400">
-                                            أفضل أداء يومي
+                                            Best daily performance
                                         </p>
                                     </div>
                                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                                         <p className="text-xs text-slate-300">
-                                            أعلى معدل
+                                            Highest rate
                                         </p>
                                         <p className="mt-2 text-2xl font-semibold text-rose-300">
                                             {toPercentage(summary.max)}
                                         </p>
                                         <p className="mt-1 text-xs text-slate-400">
-                                            أعلى ضغط تشغيلي
+                                            Peak operational pressure
                                         </p>
                                     </div>
                                 </div>
@@ -243,14 +237,14 @@ export default function Welcome({ auth }) {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="text-xs text-slate-400">
-                                                مخطط الإلغاء اليومي
+                                                Daily cancellation chart
                                             </p>
                                             <p className="mt-1 text-sm font-semibold text-white">
-                                                اتجاهات الإلغاء خلال الفترة
+                                                Cancellation trends over time
                                             </p>
                                         </div>
                                         <span className="text-xs text-slate-400">
-                                            {loading ? 'جارٍ التحديث...' : 'آخر تحديث الآن'}
+                                            {loading ? 'Refreshing...' : 'Updated just now'}
                                         </span>
                                     </div>
 
@@ -297,7 +291,7 @@ export default function Welcome({ auth }) {
                                             </svg>
                                         ) : (
                                             <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/5 text-sm text-slate-300">
-                                                لا توجد بيانات لعرضها ضمن هذه الفترة.
+                                                No data available for this period.
                                             </div>
                                         )}
                                     </div>
@@ -311,17 +305,17 @@ export default function Welcome({ auth }) {
                                 >
                                     <div>
                                         <h2 className="text-lg font-semibold text-white">
-                                            إعداد التقرير
+                                            Report configuration
                                         </h2>
                                         <p className="mt-2 text-sm text-slate-300">
-                                            اختر تاريخ البداية والنهاية لإنشاء تقرير دقيق
-                                            وتحقق تلقائي من صحة المدخلات.
+                                            Choose a start and end date to generate accurate
+                                            insights with inline validation.
                                         </p>
                                     </div>
 
                                     <div className="grid gap-4">
                                         <label className="space-y-2 text-sm font-medium text-slate-200">
-                                            تاريخ البداية
+                                            Start date
                                             <input
                                                 type="date"
                                                 value={startDate}
@@ -338,7 +332,7 @@ export default function Welcome({ auth }) {
                                         </label>
 
                                         <label className="space-y-2 text-sm font-medium text-slate-200">
-                                            تاريخ النهاية
+                                            End date
                                             <input
                                                 type="date"
                                                 value={endDate}
@@ -360,7 +354,7 @@ export default function Welcome({ auth }) {
                                         disabled={loading}
                                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-cyan-400/60"
                                     >
-                                        {loading ? 'جاري التحديث...' : 'تحديث التقرير'}
+                                        {loading ? 'Updating...' : 'Refresh report'}
                                     </button>
 
                                     {apiError ? (
@@ -372,10 +366,10 @@ export default function Welcome({ auth }) {
 
                                 <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
                                     <h3 className="text-lg font-semibold text-white">
-                                        مؤشرات الأداء السريعة
+                                        Quick performance indicators
                                     </h3>
                                     <p className="mt-2 text-sm text-slate-300">
-                                        قراءات جاهزة يمكن مشاركتها مع فريق العمليات.
+                                        Snapshot readings you can share with operations teams.
                                     </p>
                                     <div className="mt-5 space-y-3">
                                         {rates.slice(0, 4).map((rate) => (
@@ -393,11 +387,57 @@ export default function Welcome({ auth }) {
                                         ))}
                                         {!rates.length ? (
                                             <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-6 text-center text-sm text-slate-400">
-                                                سيتم عرض مؤشرات الأداء هنا بعد تحميل البيانات.
+                                                Performance indicators will appear here once data loads.
                                             </div>
                                         ) : null}
                                     </div>
                                 </div>
+                            </div>
+                        </section>
+                        <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h2 className="text-lg font-semibold text-white">
+                                        Daily cancellation table
+                                    </h2>
+                                    <p className="text-sm text-slate-300">
+                                        Detailed breakdown for each day in the selected range.
+                                    </p>
+                                </div>
+                                <span className="text-xs text-slate-400">
+                                    {rates.length} records
+                                </span>
+                            </div>
+                            <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
+                                <table className="w-full border-collapse text-left text-sm text-slate-200">
+                                    <thead className="bg-white/10 text-xs uppercase tracking-wide text-slate-300">
+                                        <tr>
+                                            <th className="px-4 py-3">Day</th>
+                                            <th className="px-4 py-3">Cancellation Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/10">
+                                        {rates.length ? (
+                                            rates.map((rate) => (
+                                                <tr key={rate.day} className="bg-slate-950/40">
+                                                    <td className="px-4 py-3">{rate.day}</td>
+                                                    <td className="px-4 py-3 font-semibold text-cyan-200">
+                                                        {rate.cancellation_rate.toFixed(2)}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td
+                                                    colSpan={2}
+                                                    className="px-4 py-6 text-center text-sm text-slate-400"
+                                                >
+                                                    No rows to display yet.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </section>
                     </div>
