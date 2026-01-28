@@ -1,5 +1,10 @@
 # Taxi Trips Cancellation Rate – Solutions
 
+##### The solution was implemented using Laravel 12 with React for the frontend.
+##### I chose not to use the ORM in the reporting layer, as the task is aggregation-heavy and better suited for direct database queries for clarity and performance.
+##### The Vite configuration was adjusted to support HMR in a Docker-based local environment, with the host set to assessment.local to match the domain used in the browser.
+##### The application environment was also updated by setting APP_URL=http://assessment.local to ensure correct URL resolution in the local setup.
+
 ## Part A – SQL / Database
 
 ### Q1 – Cancellation Rate per Day (Core)
