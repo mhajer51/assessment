@@ -112,53 +112,53 @@ export default function Welcome() {
     return (
         <>
             <Head title="Cancellation Rate" />
-            <div className="min-h-screen bg-slate-950 text-white">
+            <div className="min-h-screen bg-slate-50 text-slate-900">
                 <div className="relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.25),_transparent_60%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.35),_transparent_60%)]" />
                     <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-10">
                         <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">
+                                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">
                                     Operations Reports
                                 </p>
-                                <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+                                <h1 className="mt-3 text-3xl font-semibold text-slate-900 sm:text-4xl">
                                     Cancellation Rate Dashboard
                                 </h1>
-                                <p className="mt-3 max-w-2xl text-sm text-slate-200">
+                                <p className="mt-3 max-w-2xl text-sm text-slate-600">
                                     Track daily trip performance, responsive experience powered by the /reports/cancellation-rate API.
                                 </p>
                             </div>
                         </header>
 
                         <section className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-                            <div className="space-y-6 rounded-3xl bg-white/5 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.35)] backdrop-blur">
+                            <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-white">
+                                        <h2 className="text-lg font-semibold text-slate-900">
                                             Daily cancellation table
                                         </h2>
-                                        <p className="text-sm text-slate-300">
+                                        <p className="text-sm text-slate-600">
                                             Detailed breakdown for each day in the selected range.
                                         </p>
                                     </div>
-                                    <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-xs font-semibold text-cyan-100">
+                                    <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">
                                         {totalDays} days
                                     </span>
                                 </div>
-                                <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
-                                    <table className="w-full border-collapse text-left text-sm text-slate-200">
-                                        <thead className="bg-white/10 text-xs uppercase tracking-wide text-slate-300">
+                                <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+                                    <table className="w-full border-collapse text-left text-sm text-slate-700">
+                                        <thead className="bg-slate-100 text-xs uppercase tracking-wide text-slate-500">
                                         <tr>
                                             <th className="px-4 py-3">Day</th>
                                             <th className="px-4 py-3">Cancellation Rate</th>
                                         </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-white/10">
+                                        <tbody className="divide-y divide-slate-200">
                                         {rates.length ? (
                                             rates.map((rate) => (
-                                                <tr key={rate.day} className="bg-slate-950/40">
+                                                <tr key={rate.day} className="bg-white">
                                                     <td className="px-4 py-3">{rate.day}</td>
-                                                    <td className="px-4 py-3 font-semibold text-cyan-200">
+                                                    <td className="px-4 py-3 font-semibold text-cyan-700">
                                                         {rate.cancellation_rate.toFixed(2)}
                                                     </td>
                                                 </tr>
@@ -167,7 +167,7 @@ export default function Welcome() {
                                             <tr>
                                                 <td
                                                     colSpan={2}
-                                                    className="px-4 py-6 text-center text-sm text-slate-400"
+                                                    className="px-4 py-6 text-center text-sm text-slate-500"
                                                 >
                                                     No rows to display yet.
                                                 </td>
@@ -183,22 +183,22 @@ export default function Welcome() {
                             <div className="flex flex-col gap-6">
                                 <form
                                     onSubmit={handleSubmit}
-                                    className="space-y-5 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+                                    className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
                                 >
                                     <div>
-                                        <h2 className="text-lg font-semibold text-white">
+                                        <h2 className="text-lg font-semibold text-slate-900">
                                             Report configuration
                                         </h2>
-                                        <p className="mt-2 text-sm text-slate-300">
+                                        <p className="mt-2 text-sm text-slate-600">
                                             Choose a start and end date to generate accurate
                                             insights with inline validation.
                                         </p>
                                     </div>
 
                                     <div className="grid gap-4">
-                                        <label className="text-sm font-medium text-slate-200">
+                                        <label className="text-sm font-medium text-slate-700">
                                             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-                                                <span className="pt-2 text-sm font-medium text-slate-200 sm:w-24">
+                                                <span className="pt-2 text-sm font-medium text-slate-700 sm:w-24">
                                                     Start date
                                                 </span>
                                                 <div className="flex-1">
@@ -206,7 +206,7 @@ export default function Welcome() {
                                                         selected={startDate}
                                                         onChange={(date) => setStartDate(date)}
                                                         dateFormat="yyyy-MM-dd"
-                                                        className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                                        className="date-picker-input w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-cyan-400"
                                                         calendarClassName="date-picker-calendar"
                                                         popperClassName="date-picker-popper"
                                                         showPopperArrow={false}
@@ -215,15 +215,15 @@ export default function Welcome() {
                                             </div>
 
                                             {errors.startDate ? (
-                                                <span className="text-xs text-rose-300">
+                                                <span className="text-xs text-rose-600">
                                                 {errors.startDate}
                                             </span>
                                             ) : null}
                                         </label>
 
-                                        <label className="text-sm font-medium text-slate-200">
+                                        <label className="text-sm font-medium text-slate-700">
                                             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-                                                <span className="pt-2 text-sm font-medium text-slate-200 sm:w-24">
+                                                <span className="pt-2 text-sm font-medium text-slate-700 sm:w-24">
                                                     End date
                                                 </span>
                                                 <div className="flex-1">
@@ -231,7 +231,7 @@ export default function Welcome() {
                                                         selected={endDate}
                                                         onChange={(date) => setEndDate(date)}
                                                         dateFormat="yyyy-MM-dd"
-                                                        className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                                        className="date-picker-input w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-cyan-400"
                                                         calendarClassName="date-picker-calendar"
                                                         popperClassName="date-picker-popper"
                                                         minDate={startDate}
@@ -240,7 +240,7 @@ export default function Welcome() {
                                                 </div>
                                             </div>
                                             {errors.endDate ? (
-                                                <span className="text-xs text-rose-300">
+                                                <span className="text-xs text-rose-600">
                                                     {errors.endDate}
                                                 </span>
                                             ) : null}
@@ -256,7 +256,7 @@ export default function Welcome() {
                                     </button>
 
                                     {apiError ? (
-                                        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                                        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                                             {apiError}
                                         </div>
                                     ) : null}
