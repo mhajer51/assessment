@@ -1,11 +1,24 @@
 import { Head } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
-
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const buildDefaultRange = () => ({
-    startDate: '2013-10-01',
-    endDate: '2013-10-03',
+    startDate: new Date(2013, 9, 1),
+    endDate: new Date(2013, 9, 3),
 });
+
+const formatDate = (date) => {
+    if (!date) {
+        return '';
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
 
 const validateRange = ({ startDate, endDate }) => {
     const errors = {};
@@ -35,6 +48,8 @@ export default function Welcome() {
     const [apiError, setApiError] = useState('');
 
     const fetchRates = async ({ startDate: fromDate, endDate: toDate }) => {
+        const formattedStart = formatDate(fromDate);
+        const formattedEnd = formatDate(toDate);
         const nextErrors = validateRange({ startDate: fromDate, endDate: toDate });
 
         setErrors(nextErrors);
@@ -47,8 +62,8 @@ export default function Welcome() {
         setApiError('');
 
         const params = new URLSearchParams({
-            start_date: fromDate,
-            end_date: toDate,
+            start_date: formattedStart,
+            end_date: formattedEnd,
         });
 
         try {
@@ -183,13 +198,14 @@ export default function Welcome() {
                                     <div className="grid gap-4">
                                         <label className="space-y-2 text-sm font-medium text-slate-200">
                                             Start date
-                                            <input
-                                                type="date"
-                                                value={startDate}
-                                                onChange={(event) =>
-                                                    setStartDate(event.target.value)
-                                                }
-                                                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                            <DatePicker
+                                                selected={startDate}
+                                                onChange={(date) => setStartDate(date)}
+                                                dateFormat="yyyy-MM-dd"
+                                                className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                                calendarClassName="date-picker-calendar"
+                                                popperClassName="date-picker-popper"
+                                                showPopperArrow={false}
                                             />
                                             {errors.startDate ? (
                                                 <span className="text-xs text-rose-300">
@@ -200,13 +216,15 @@ export default function Welcome() {
 
                                         <label className="space-y-2 text-sm font-medium text-slate-200">
                                             End date
-                                            <input
-                                                type="date"
-                                                value={endDate}
-                                                onChange={(event) =>
-                                                    setEndDate(event.target.value)
-                                                }
-                                                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                            <DatePicker
+                                                selected={endDate}
+                                                onChange={(date) => setEndDate(date)}
+                                                dateFormat="yyyy-MM-dd"
+                                                className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                                calendarClassName="date-picker-calendar"
+                                                popperClassName="date-picker-popper"
+                                                minDate={startDate}
+                                                showPopperArrow={false}
                                             />
                                             {errors.endDate ? (
                                                 <span className="text-xs text-rose-300">
