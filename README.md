@@ -11,25 +11,26 @@
 
 ```sql
 SELECT
-  t.request_at AS Day,
-  ROUND(
-    SUM(CASE
-          WHEN t.status IN ('cancelled_by_driver', 'cancelled_by_client') THEN 1
-          ELSE 0
-        END) / COUNT(*),
+    DATE(t.request_at) AS day,
+    ROUND(
+    SUM(CASE WHEN t.status IN ('cancelled_by_driver','cancelled_by_client') THEN 1 ELSE 0 END)
+    / NULLIF(COUNT(*), 0),
     2
-  ) AS "Cancellation Rate"
-FROM Trips AS t
-JOIN Users AS c
-  ON c.users_id = t.client_id
- AND c.banned = 'No'
-JOIN Users AS d
-  ON d.users_id = t.driver_id
- AND d.banned = 'No'
-WHERE t.request_at BETWEEN '2013-10-01' AND '2013-10-03'
-GROUP BY t.request_at
-HAVING COUNT(*) > 0
-ORDER BY t.request_at;
+    ) AS cancellation_rate
+FROM trips AS t
+    JOIN users AS c
+        ON c.id = t.client_id
+        AND c.banned = 'no'
+        AND c.role   = 'client'
+    JOIN users AS d
+        ON d.id = t.driver_id
+        AND d.banned = 'no'
+        AND d.role   = 'driver'
+WHERE t.request_at >= '2013-10-01'
+  AND t.request_at <  '2013-10-04'
+GROUP BY DATE(t.request_at)
+ORDER BY day;
+
 ```
 
 ### Q2 – Data Modeling / Indexing
