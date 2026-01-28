@@ -15,8 +15,8 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/reports/cancellation-rate', CancellationRateController::class)
-    ->name('reports.cancellation-rate');
+Route::get('/reports/cancellation-rate', [CancellationRateController::class, 'index'])->name('reports.cancellation-rate');
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
