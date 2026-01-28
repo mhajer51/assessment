@@ -109,6 +109,139 @@ export default function Welcome() {
         fetchRates({ startDate, endDate });
     };
 
+
+
+
+
+
+
+    let users = [
+        { id: 1, banned: "No", role: "client" },
+        { id: 2, banned: "No", role: "driver" },
+        { id: 3, banned: "Yes", role: "client" },
+        { id: 4, banned: "No", role: "driver" },
+        { id: 5, banned: "No", role: "client" },
+        { id: 6, banned: "Yes", role: "driver" },
+    ];
+
+    let trips = [
+        {
+            id: 1,
+            client_id: 1,
+            driver_id: 2,
+            city_id: 1,
+            status: "completed",
+            request_at: "2023-10-01",
+        },
+        {
+            id: 2,
+            client_id: 1,
+            driver_id: 4,
+            city_id: 1,
+            status: "cancelled_by_client",
+            request_at: "2023-10-01",
+        },
+        {
+            id: 3,
+            client_id: 5,
+            driver_id: 2,
+            city_id: 2,
+            status: "cancelled_by_driver",
+            request_at: "2023-10-01",
+        },
+        {
+            id: 4,
+            client_id: 3, // client banned
+            driver_id: 2,
+            city_id: 2,
+            status: "completed",
+            request_at: "2023-10-02",
+        },
+        {
+            id: 5,
+            client_id: 1,
+            driver_id: 6, // driver banned
+            city_id: 1,
+            status: "cancelled_by_driver",
+            request_at: "2023-10-02",
+        },
+        {
+            id: 6,
+            client_id: 5,
+            driver_id: 4,
+            city_id: 3,
+            status: "completed",
+            request_at: "2023-10-02",
+        },
+        {
+            id: 7,
+            client_id: 5,
+            driver_id: 4,
+            city_id: 3,
+            status: "cancelled_by_client",
+            request_at: "2023-10-03",
+        },
+        {
+            id: 8,
+            client_id: 1,
+            driver_id: 2,
+            city_id: 1,
+            status: "completed",
+            request_at: "2023-10-03",
+        },
+    ];
+    let startDateConsole = "2023-10-01";
+    let endDateConsole   = "2023-10-03";
+
+    function cancellationRates(users, trips, startDate, endDate) {
+        const userStatus = new Map();
+        for (const user of users) {
+            userStatus.set(user.id, user.banned);
+        }
+
+        const totalsByDay = new Map();
+        const cancelledByDay = new Map();
+
+        for (const trip of trips) {
+            if (trip.request_at < startDate || trip.request_at > endDate) {
+                continue;
+            }
+
+            const clientBanned = userStatus.get(trip.client_id);
+            const driverBanned = userStatus.get(trip.driver_id);
+
+            if (clientBanned !== 'No' || driverBanned !== 'No') {
+                continue;
+            }
+
+            const day = trip.request_at;
+            totalsByDay.set(day, (totalsByDay.get(day) || 0) + 1);
+
+            if (
+                trip.status === 'cancelled_by_driver' ||
+                trip.status === 'cancelled_by_client'
+            ) {
+                cancelledByDay.set(day, (cancelledByDay.get(day) || 0) + 1);
+            }
+        }
+
+        const results = [];
+        for (const [day, total] of totalsByDay.entries()) {
+            const cancelled = cancelledByDay.get(day) || 0;
+            const rate = total === 0 ? 0 : cancelled / total;
+            results.push({
+                day,
+                cancellation_rate: Number(rate.toFixed(2)),
+            });
+        }
+
+        return results;
+    }
+
+    console.log(
+        cancellationRates(users, trips, startDateConsole, endDateConsole)
+    );
+
     return (
         <>
             <Head title="Cancellation Rate" />
