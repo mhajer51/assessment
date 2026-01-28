@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\TripStatus;
 use App\Enums\UserBannedStatus;
+use App\Enums\UserRole;
 use App\Support\DateRange;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -14,29 +15,30 @@ class CancellationRateService
     {
         [$startDate, $endDate] = $range->toDateStrings();
 
-        return DB::table('trips as trips')
+        return DB::table('trips as t')
             ->selectRaw(
-                "trips.request_at as day,\n" .
-                "ROUND(\n" .
-                "  SUM(CASE WHEN trips.status IN (?, ?) THEN 1 ELSE 0 END) / COUNT(*),\n" .
-                "  2\n" .
+                "t.request_at as day," .
+                "ROUND(" .
+                "  SUM(CASE WHEN t.status IN (?, ?) THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) , 2" .
                 ") as cancellation_rate",
                 [
                     TripStatus::CancelledByDriver->value,
                     TripStatus::CancelledByClient->value,
                 ]
             )
-            ->join('users as clients', function ($join) {
-                $join->on('clients.id', '=', 'trips.client_id')
-                    ->where('clients.banned', UserBannedStatus::No->value);
+            ->join('users as c', function ($join) {
+                $join->on('c.id', '=', 't.client_id')
+                    ->where('c.banned', UserBannedStatus::No->value)
+                    ->where('c.role', UserRole::Client->value);
             })
-            ->join('users as drivers', function ($join) {
-                $join->on('drivers.id', '=', 'trips.driver_id')
-                    ->where('drivers.banned', UserBannedStatus::No->value);
+            ->join('users as d', function ($join) {
+                $join->on('d.id', '=', 't.driver_id')
+                    ->where('d.banned', UserBannedStatus::No->value)
+                    ->where('d.role', UserRole::Driver->value);
             })
-            ->whereBetween('trips.request_at', [$startDate, $endDate])
-            ->groupBy('trips.request_at')
-            ->orderBy('trips.request_at')
+            ->whereBetween('t.request_at', [$startDate, $endDate])
+            ->groupBy('t.request_at')
+            ->orderBy('t.request_at')
             ->get()
             ->map(fn ($row) => [
                 'day' => $row->day,
