@@ -197,40 +197,47 @@ export default function Welcome() {
 
                                     <div className="grid gap-4">
                                         <label className="text-sm font-medium text-slate-200">
-                                            Start date
-                                            <div className={''}>
-                                                <DatePicker
-                                                    selected={startDate}
-                                                    onChange={(date) => setStartDate(date)}
-                                                    dateFormat="yyyy-MM-dd"
-                                                    className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
-                                                    calendarClassName="date-picker-calendar"
-                                                    popperClassName="date-picker-popper"
-                                                    showPopperArrow={false}
-                                                />
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+                                                <span className="pt-2 text-sm font-medium text-slate-200 sm:w-24">
+                                                    Start date
+                                                </span>
+                                                <div className="flex-1">
+                                                    <DatePicker
+                                                        selected={startDate}
+                                                        onChange={(date) => setStartDate(date)}
+                                                        dateFormat="yyyy-MM-dd"
+                                                        className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                                        calendarClassName="date-picker-calendar"
+                                                        popperClassName="date-picker-popper"
+                                                        showPopperArrow={false}
+                                                    />
+                                                </div>
                                             </div>
 
                                             {errors.startDate ? (
                                                 <span className="text-xs text-rose-300">
-                                                    {errors.startDate}
-                                                </span>
+                                                {errors.startDate}
+                                            </span>
                                             ) : null}
                                         </label>
 
                                         <label className="text-sm font-medium text-slate-200">
-                                            End date
-                                            <div className={''}>
-
-                                            <DatePicker
-                                                selected={endDate}
-                                                onChange={(date) => setEndDate(date)}
-                                                dateFormat="yyyy-MM-dd"
-                                                className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
-                                                calendarClassName="date-picker-calendar"
-                                                popperClassName="date-picker-popper"
-                                                minDate={startDate}
-                                                showPopperArrow={false}
-                                            />
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+                                                <span className="pt-2 text-sm font-medium text-slate-200 sm:w-24">
+                                                    End date
+                                                </span>
+                                                <div className="flex-1">
+                                                    <DatePicker
+                                                        selected={endDate}
+                                                        onChange={(date) => setEndDate(date)}
+                                                        dateFormat="yyyy-MM-dd"
+                                                        className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                                        calendarClassName="date-picker-calendar"
+                                                        popperClassName="date-picker-popper"
+                                                        minDate={startDate}
+                                                        showPopperArrow={false}
+                                                    />
+                                                </div>
                                             </div>
                                             {errors.endDate ? (
                                                 <span className="text-xs text-rose-300">
