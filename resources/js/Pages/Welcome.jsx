@@ -1,7 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
-const formatDate = (date) => date.toISOString().slice(0, 10);
 
 const buildDefaultRange = () => ({
     startDate: '2013-10-01',
@@ -26,9 +25,7 @@ const validateRange = ({ startDate, endDate }) => {
     return errors;
 };
 
-const toPercentage = (value) => `${Math.round(value * 1000) / 10}%`;
-
-export default function Welcome({ auth }) {
+export default function Welcome() {
     const defaults = useMemo(() => buildDefaultRange(), []);
     const [startDate, setStartDate] = useState(defaults.startDate);
     const [endDate, setEndDate] = useState(defaults.endDate);
@@ -79,62 +76,18 @@ export default function Welcome({ auth }) {
 
     useEffect(() => {
         fetchRates({ startDate, endDate });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const summary = useMemo(() => {
+    const totalDays = useMemo(() => {
         if (!rates.length) {
-            return {
-                average: 0,
-                min: 0,
-                max: 0,
-                totalDays: 0,
-            };
+            return 0;
         }
-
         const values = rates.map((rate) => rate.cancellation_rate);
-        const total = values.reduce((sum, value) => sum + value, 0);
-        const average = total / values.length;
-
-        return {
-            average,
-            min: Math.min(...values),
-            max: Math.max(...values),
-            totalDays: values.length,
-        };
+        return values.length;
     }, [rates]);
 
-    const chartPoints = useMemo(() => {
-        if (!rates.length) {
-            return '';
-        }
 
-        const width = 640;
-        const height = 180;
-        const padding = 12;
-        const maxValue = Math.max(1, summary.max);
 
-        return rates
-            .map((rate, index) => {
-                const x =
-                    padding + (index / (rates.length - 1 || 1)) * (width - padding * 2);
-                const y =
-                    height -
-                    padding -
-                    (rate.cancellation_rate / maxValue) * (height - padding * 2);
-                return `${x},${y}`;
-            })
-            .join(' ');
-    }, [rates, summary.max]);
-
-    const chartArea = useMemo(() => {
-        if (!chartPoints) {
-            return '';
-        }
-
-        const baseY = 180 - 12;
-        return `${chartPoints} 628,${baseY} 12,${baseY}`;
-    }, [chartPoints]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -157,145 +110,59 @@ export default function Welcome({ auth }) {
                                     Cancellation Rate Dashboard
                                 </h1>
                                 <p className="mt-3 max-w-2xl text-sm text-slate-200">
-                                    Track daily trip performance with a fast, responsive
-                                    experience powered by the /reports/cancellation-rate API.
+                                    Track daily trip performance, responsive experience powered by the /reports/cancellation-rate API.
                                 </p>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-200">
-                                <span className="rounded-full bg-white/10 px-3 py-1">
-                                    Fast refresh
-                                </span>
-                                <span className="rounded-full bg-white/10 px-3 py-1">
-                                    Real-time data
-                                </span>
-                                {auth?.user ? (
-                                    <Link
-                                        href={route('dashboard')}
-                                        className="rounded-full bg-cyan-400/90 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-                                    >
-                                        لوحة التحكم
-                                    </Link>
-                                ) : (
-                                    <Link
-                                        href={route('login')}
-                                        className="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/60"
-                                    >
-                                        Log in
-                                    </Link>
-                                )}
                             </div>
                         </header>
 
                         <section className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
                             <div className="space-y-6 rounded-3xl bg-white/5 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.35)] backdrop-blur">
                                 <div className="flex items-center justify-between">
-                                    <h2 className="text-lg font-semibold text-white">
-                                        Period overview
-                                    </h2>
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-white">
+                                            Daily cancellation table
+                                        </h2>
+                                        <p className="text-sm text-slate-300">
+                                            Detailed breakdown for each day in the selected range.
+                                        </p>
+                                    </div>
                                     <span className="rounded-full bg-cyan-400/20 px-3 py-1 text-xs font-semibold text-cyan-100">
-                                        {summary.totalDays} days
+                                        {totalDays} days
                                     </span>
                                 </div>
-
-                                <div className="grid gap-4 sm:grid-cols-3">
-                                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                        <p className="text-xs text-slate-300">
-                                            Daily average
-                                        </p>
-                                        <p className="mt-2 text-2xl font-semibold">
-                                            {toPercentage(summary.average)}
-                                        </p>
-                                        <p className="mt-1 text-xs text-slate-400">
-                                            Overall cancellation rate
-                                        </p>
-                                    </div>
-                                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                        <p className="text-xs text-slate-300">
-                                            Lowest rate
-                                        </p>
-                                        <p className="mt-2 text-2xl font-semibold text-emerald-300">
-                                            {toPercentage(summary.min)}
-                                        </p>
-                                        <p className="mt-1 text-xs text-slate-400">
-                                            Best daily performance
-                                        </p>
-                                    </div>
-                                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                        <p className="text-xs text-slate-300">
-                                            Highest rate
-                                        </p>
-                                        <p className="mt-2 text-2xl font-semibold text-rose-300">
-                                            {toPercentage(summary.max)}
-                                        </p>
-                                        <p className="mt-1 text-xs text-slate-400">
-                                            Peak operational pressure
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-xs text-slate-400">
-                                                Daily cancellation chart
-                                            </p>
-                                            <p className="mt-1 text-sm font-semibold text-white">
-                                                Cancellation trends over time
-                                            </p>
-                                        </div>
-                                        <span className="text-xs text-slate-400">
-                                            {loading ? 'Refreshing...' : 'Updated just now'}
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-4">
+                                <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
+                                    <table className="w-full border-collapse text-left text-sm text-slate-200">
+                                        <thead className="bg-white/10 text-xs uppercase tracking-wide text-slate-300">
+                                        <tr>
+                                            <th className="px-4 py-3">Day</th>
+                                            <th className="px-4 py-3">Cancellation Rate</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/10">
                                         {rates.length ? (
-                                            <svg
-                                                viewBox="0 0 640 180"
-                                                className="h-44 w-full"
-                                                role="img"
-                                                aria-label="Cancellation rate chart"
-                                            >
-                                                <defs>
-                                                    <linearGradient
-                                                        id="areaFill"
-                                                        x1="0"
-                                                        x2="0"
-                                                        y1="0"
-                                                        y2="1"
-                                                    >
-                                                        <stop
-                                                            offset="0%"
-                                                            stopColor="#22d3ee"
-                                                            stopOpacity="0.35"
-                                                        />
-                                                        <stop
-                                                            offset="100%"
-                                                            stopColor="#22d3ee"
-                                                            stopOpacity="0.05"
-                                                        />
-                                                    </linearGradient>
-                                                </defs>
-                                                <polygon
-                                                    points={chartArea}
-                                                    fill="url(#areaFill)"
-                                                />
-                                                <polyline
-                                                    points={chartPoints}
-                                                    fill="none"
-                                                    stroke="#38bdf8"
-                                                    strokeWidth="3"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
+                                            rates.map((rate) => (
+                                                <tr key={rate.day} className="bg-slate-950/40">
+                                                    <td className="px-4 py-3">{rate.day}</td>
+                                                    <td className="px-4 py-3 font-semibold text-cyan-200">
+                                                        {rate.cancellation_rate.toFixed(2)}
+                                                    </td>
+                                                </tr>
+                                            ))
                                         ) : (
-                                            <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/5 text-sm text-slate-300">
-                                                No data available for this period.
-                                            </div>
+                                            <tr>
+                                                <td
+                                                    colSpan={2}
+                                                    className="px-4 py-6 text-center text-sm text-slate-400"
+                                                >
+                                                    No rows to display yet.
+                                                </td>
+                                            </tr>
                                         )}
-                                    </div>
+                                        </tbody>
+                                    </table>
                                 </div>
+
+
                             </div>
 
                             <div className="flex flex-col gap-6">
@@ -363,83 +230,9 @@ export default function Welcome({ auth }) {
                                         </div>
                                     ) : null}
                                 </form>
+                            </div>
+                        </section>
 
-                                <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                                    <h3 className="text-lg font-semibold text-white">
-                                        Quick performance indicators
-                                    </h3>
-                                    <p className="mt-2 text-sm text-slate-300">
-                                        Snapshot readings you can share with operations teams.
-                                    </p>
-                                    <div className="mt-5 space-y-3">
-                                        {rates.slice(0, 4).map((rate) => (
-                                            <div
-                                                key={rate.day}
-                                                className="flex items-center justify-between rounded-2xl border border-white/5 bg-slate-950/60 px-4 py-3"
-                                            >
-                                                <span className="text-sm text-slate-200">
-                                                    {rate.day}
-                                                </span>
-                                                <span className="text-sm font-semibold text-cyan-200">
-                                                    {toPercentage(rate.cancellation_rate)}
-                                                </span>
-                                            </div>
-                                        ))}
-                                        {!rates.length ? (
-                                            <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-6 text-center text-sm text-slate-400">
-                                                Performance indicators will appear here once data loads.
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                        <section className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <h2 className="text-lg font-semibold text-white">
-                                        Daily cancellation table
-                                    </h2>
-                                    <p className="text-sm text-slate-300">
-                                        Detailed breakdown for each day in the selected range.
-                                    </p>
-                                </div>
-                                <span className="text-xs text-slate-400">
-                                    {rates.length} records
-                                </span>
-                            </div>
-                            <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
-                                <table className="w-full border-collapse text-left text-sm text-slate-200">
-                                    <thead className="bg-white/10 text-xs uppercase tracking-wide text-slate-300">
-                                        <tr>
-                                            <th className="px-4 py-3">Day</th>
-                                            <th className="px-4 py-3">Cancellation Rate</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/10">
-                                        {rates.length ? (
-                                            rates.map((rate) => (
-                                                <tr key={rate.day} className="bg-slate-950/40">
-                                                    <td className="px-4 py-3">{rate.day}</td>
-                                                    <td className="px-4 py-3 font-semibold text-cyan-200">
-                                                        {rate.cancellation_rate.toFixed(2)}
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td
-                                                    colSpan={2}
-                                                    className="px-4 py-6 text-center text-sm text-slate-400"
-                                                >
-                                                    No rows to display yet.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
                     </div>
                 </div>
             </div>
