@@ -196,17 +196,20 @@ export default function Welcome() {
                                     </div>
 
                                     <div className="grid gap-4">
-                                        <label className="space-y-2 text-sm font-medium text-slate-200">
+                                        <label className="text-sm font-medium text-slate-200">
                                             Start date
-                                            <DatePicker
-                                                selected={startDate}
-                                                onChange={(date) => setStartDate(date)}
-                                                dateFormat="yyyy-MM-dd"
-                                                className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
-                                                calendarClassName="date-picker-calendar"
-                                                popperClassName="date-picker-popper"
-                                                showPopperArrow={false}
-                                            />
+                                            <div className={''}>
+                                                <DatePicker
+                                                    selected={startDate}
+                                                    onChange={(date) => setStartDate(date)}
+                                                    dateFormat="yyyy-MM-dd"
+                                                    className="date-picker-input w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+                                                    calendarClassName="date-picker-calendar"
+                                                    popperClassName="date-picker-popper"
+                                                    showPopperArrow={false}
+                                                />
+                                            </div>
+
                                             {errors.startDate ? (
                                                 <span className="text-xs text-rose-300">
                                                     {errors.startDate}
@@ -214,8 +217,10 @@ export default function Welcome() {
                                             ) : null}
                                         </label>
 
-                                        <label className="space-y-2 text-sm font-medium text-slate-200">
+                                        <label className="text-sm font-medium text-slate-200">
                                             End date
+                                            <div className={''}>
+
                                             <DatePicker
                                                 selected={endDate}
                                                 onChange={(date) => setEndDate(date)}
@@ -226,6 +231,7 @@ export default function Welcome() {
                                                 minDate={startDate}
                                                 showPopperArrow={false}
                                             />
+                                            </div>
                                             {errors.endDate ? (
                                                 <span className="text-xs text-rose-300">
                                                     {errors.endDate}
