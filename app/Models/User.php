@@ -3,8 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserBannedStatus;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
@@ -21,6 +24,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'banned',
+        'role',
     ];
 
     /**
@@ -43,6 +48,18 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'banned' => UserBannedStatus::class,
+            'role' => UserRole::class,
         ];
+    }
+
+    public function clientTrips(): HasMany
+    {
+        return $this->hasMany(Trip::class, 'client_id');
+    }
+
+    public function driverTrips(): HasMany
+    {
+        return $this->hasMany(Trip::class, 'driver_id');
     }
 }
