@@ -91,6 +91,9 @@ export default function Welcome() {
 
     useEffect(() => {
         fetchRates({ startDate, endDate });
+        console.log(
+            cancellationRates(users, trips, startDateConsole, endDateConsole)
+        );
     }, []);
 
     const totalDays = useMemo(() => {
@@ -238,9 +241,7 @@ export default function Welcome() {
         return results;
     }
 
-    console.log(
-        cancellationRates(users, trips, startDateConsole, endDateConsole)
-    );
+
 
     return (
         <>
