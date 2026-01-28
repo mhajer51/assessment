@@ -1,60 +1,110 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Taxi Trips Cancellation Rate – Solutions
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Part A – SQL / Database
 
-## About Laravel
+### Q1 – Cancellation Rate per Day (Core)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```sql
+SELECT
+  t.request_at AS Day,
+  ROUND(
+    SUM(CASE
+          WHEN t.status IN ('cancelled_by_driver', 'cancelled_by_client') THEN 1
+          ELSE 0
+        END) / COUNT(*),
+    2
+  ) AS "Cancellation Rate"
+FROM Trips AS t
+JOIN Users AS c
+  ON c.users_id = t.client_id
+ AND c.banned = 'No'
+JOIN Users AS d
+  ON d.users_id = t.driver_id
+ AND d.banned = 'No'
+WHERE t.request_at BETWEEN '2013-10-01' AND '2013-10-03'
+GROUP BY t.request_at
+HAVING COUNT(*) > 0
+ORDER BY t.request_at;
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Q2 – Data Modeling / Indexing
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Indexes to add**
 
-## Learning Laravel
+* `Trips(request_at)` to speed up the date range filter.
+* `Trips(client_id)` and `Trips(driver_id)` (or a composite like
+  `Trips(request_at, client_id, driver_id)`) to speed up joins and filtering
+  by date simultaneously.
+* `Users(users_id, banned)` (or keep `users_id` as PK and add a separate
+  `Users(banned)` if needed) to make the banned filter efficient when joined
+  from trips.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+**request_at type**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Use a `DATE` (or `DATETIME`/`TIMESTAMP` if time-of-day matters) column instead
+of `VARCHAR`. Native date types are more compact, validate input, allow date
+arithmetic, and index/range queries are more efficient and reliable.
 
-## Laravel Sponsors
+## Part B – Algorithm / Coding
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Q3 – Function to Compute Daily Cancellation Rate
 
-### Premium Partners
+```javascript
+function cancellationRates(users, trips, startDate, endDate) {
+  const userStatus = new Map();
+  for (const user of users) {
+    userStatus.set(user.id, user.banned);
+  }
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+  const totalsByDay = new Map();
+  const cancelledByDay = new Map();
 
-## Contributing
+  for (const trip of trips) {
+    if (trip.request_at < startDate || trip.request_at > endDate) {
+      continue;
+    }
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    const clientBanned = userStatus.get(trip.client_id);
+    const driverBanned = userStatus.get(trip.driver_id);
 
-## Code of Conduct
+    if (clientBanned !== 'No' || driverBanned !== 'No') {
+      continue;
+    }
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    const day = trip.request_at;
+    totalsByDay.set(day, (totalsByDay.get(day) || 0) + 1);
 
-## Security Vulnerabilities
+    if (
+      trip.status === 'cancelled_by_driver' ||
+      trip.status === 'cancelled_by_client'
+    ) {
+      cancelledByDay.set(day, (cancelledByDay.get(day) || 0) + 1);
+    }
+  }
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+  const results = [];
+  for (const [day, total] of totalsByDay.entries()) {
+    const cancelled = cancelledByDay.get(day) || 0;
+    const rate = total === 0 ? 0 : cancelled / total;
+    results.push({
+      day,
+      cancellation_rate: Number(rate.toFixed(2)),
+    });
+  }
 
-## License
+  return results;
+}
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# assessment
+**Time complexity**: `O(U + T)` where `U` is the number of users and `T` is the
+number of trips.
+
+**Data structures used**: `Map` for user lookup (`userStatus`) and two `Map`s
+for per-day totals and cancellations to keep constant-time updates.
+
+### Q4 – Edge Cases
+
+* **A day has no valid trips (all trips involve banned/missing users).**
+  Expected: that day is omitted from the output entirely.
+* **All valid trips are completed (no cancellations).**
+  Expected: cancellation rate is `0.00` for that day.
