@@ -173,7 +173,7 @@ export default function Welcome({ auth }) {
                                         href={route('dashboard')}
                                         className="rounded-full bg-cyan-400/90 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
                                     >
-                                        Dashboard
+                                        لوحة التحكم
                                     </Link>
                                 ) : (
                                     <Link
